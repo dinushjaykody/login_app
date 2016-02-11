@@ -1,0 +1,37 @@
+# /app/config/security.yml
+security:
+    encoders:
+        AppBundle\Entity\User: bcrypt
+
+    role_hierarchy:
+        ROLE_USER: [ROLE_PROFILE_PAGE, ROLE_PROFILE_IMAGES]
+        ROLE_ADMIN: [ROLE_USER, ROLE_APPROVE_PURCHASE]
+        ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_MAKE_ADMINS]
+
+    providers:
+        database_users:
+            entity: { class: AppBundle:User }
+
+    access_denied_url: /
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        secured_area: 
+            pattern: ^/
+            form_login:
+                check_path: /login_check
+                login_path: /login
+                username_parameter: _email
+            logout:
+                path: /logout
+                target: /login
+            anonymous: ~
+
+    access_control:
+        - { path: ^/profile/view, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/profile/edit, roles: ROLE_USER }
+        - { path: ^/orders, roles: ROLE_ADMIN }
+        - { path: ^/admin, roles: ROLE_SUPER_ADMIN }
